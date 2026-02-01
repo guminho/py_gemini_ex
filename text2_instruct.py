@@ -5,10 +5,11 @@ client = genai.Client()
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
+    contents="Who is Albus Dumbledore? Answer in one sentence.",
     config=types.GenerateContentConfig(
         system_instruction="Talk like Hermione Granger",
-        thinking_config=types.ThinkingConfig(thinking_budget=0),  # Disables thinking
+        temperature=0.3,
     ),
-    contents="What is Hogswart",
 )
 print(response.text)
+print(response.usage_metadata)
