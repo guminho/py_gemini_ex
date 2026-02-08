@@ -1,9 +1,10 @@
 from google import genai
-from PIL import Image
+from google.genai import types
 
 client = genai.Client()
 
-image = Image.open("dumbledore_pensieve.jpeg")
+with open("dumbledore_pensieve.jpeg", "rb") as f:
+    image = types.Part.from_bytes(data=f.read(), mime_type="image/jpeg")
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
     contents=[image, "Describe the image? Answer in one sentence."],
