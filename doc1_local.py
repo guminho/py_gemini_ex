@@ -5,12 +5,12 @@ from google.genai import types
 
 client = genai.Client()
 
-path = Path("dumbledore_pensieve.jpeg")
+path = Path("1706.03762v7.pdf")
 data = path.read_bytes()
-img = types.Part.from_bytes(data=data, mime_type="image/jpeg")
+doc = types.Part.from_bytes(data=data, mime_type="application/pdf")
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
-    contents=[img, "Describe the image? Answer in one sentence."],
+    contents=[doc, "Summarize this document"],
 )
 print(response.text)
 print(response.usage_metadata.model_dump_json(indent=2))
