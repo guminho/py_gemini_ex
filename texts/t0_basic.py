@@ -8,4 +8,4 @@ response = client.models.generate_content(
     contents="Who is Albus Dumbledore? Answer in one sentence.",
 )
 print(response.text)
-print(response.usage_metadata)
+print(response.usage_metadata.model_dump_json(indent=2))
