@@ -23,3 +23,4 @@ response = client.models.generate_content(
     },
 )
 print(response.text)
+print(response.usage_metadata.model_dump_json(indent=2))

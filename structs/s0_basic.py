@@ -1,14 +1,14 @@
-from typing import Literal, Union
+from typing import Literal
 
 from google import genai
 from pydantic import BaseModel, Field
 
+TYPE_SPAM = Literal["phishing", "scam", "unsolicited promotion", "other"]
+
 
 class SpamDetails(BaseModel):
     reason: str = Field(description="The reason why the content is considered spam.")
-    spam_type: Literal["phishing", "scam", "unsolicited promotion", "other"] = Field(
-        description="The type of spam."
-    )
+    spam_type: TYPE_SPAM = Field(description="The type of spam.")
 
 
 class NotSpamDetails(BaseModel):
@@ -17,7 +17,7 @@ class NotSpamDetails(BaseModel):
 
 
 class ModerationResult(BaseModel):
-    decision: Union[SpamDetails, NotSpamDetails]
+    decision: SpamDetails | NotSpamDetails
 
 
 client = genai.Client()
@@ -26,7 +26,6 @@ prompt = """
 Please moderate the following content and provide a decision.
 Content: 'Congratulations! You''ve won a free cruise to the Bahamas. Click here to claim your prize: www.definitely-not-a-scam.com'
 """
-
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
     contents=prompt,
@@ -36,3 +35,4 @@ response = client.models.generate_content(
     },
 )
 print(response.text)
+print(response.usage_metadata.model_dump_json(indent=2))
