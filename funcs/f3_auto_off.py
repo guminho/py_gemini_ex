@@ -27,7 +27,5 @@ response = client.models.generate_content(
     contents="What's the temperature in Boston?",
     config=config,
 )
-if response.function_calls:
-    print(response.function_calls)
-else:
-    print(response.text)
+part = response.candidates[0].content.parts[0]
+print(part.function_call)

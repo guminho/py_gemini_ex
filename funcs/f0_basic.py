@@ -39,10 +39,6 @@ response = client.models.generate_content(
     contents="Schedule a meeting with Bob and Alice for 03/14/2025 at 10:00 AM about the Q3 planning.",
     config=config,
 )
-if response.function_calls:
-    print(response.function_calls)
-    #  In a real app, you would call your function here:
-    #  result = schedule_meeting(**function_call.args)
-else:
-    print("No function call found in the response.")
-    print(response.text)
+part = response.candidates[0].content.parts[0]
+print(part.function_call)
+print(part.thought_signature[:30])

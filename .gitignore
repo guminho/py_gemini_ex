@@ -3,3 +3,6 @@ uv.lock
 .venv
 .env
 .adk
+
+node_modules
+package-lock.json
