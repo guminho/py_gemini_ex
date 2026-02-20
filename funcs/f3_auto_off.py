@@ -1,5 +1,8 @@
 from google import genai
-from google.genai import types
+from google.genai.types import AutomaticFunctionCallingConfig as AutoFCConfig
+from google.genai.types import FunctionCallingConfig as FCConfig
+from google.genai.types import GenerateContentConfig as GenConfig
+from google.genai.types import ToolConfig
 
 
 # Define the function with type hints and docstring
@@ -17,15 +20,15 @@ def get_current_temperature(location: str) -> dict:
 
 
 client = genai.Client()
-config = types.GenerateContentConfig(
+config = GenConfig(
     tools=[get_current_temperature],
-    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+    automatic_function_calling=AutoFCConfig(disable=True),
+    tool_config=ToolConfig(function_calling_config=FCConfig(mode="ANY")),
 )
 
 response = client.models.generate_content(
-    model="gemini-2.5-flash",
+    model="gemini-3-flash-preview",
     contents="What's the temperature in Boston?",
     config=config,
 )
-part = response.candidates[0].content.parts[0]
-print(part.function_call)
+print(response.function_calls[0])

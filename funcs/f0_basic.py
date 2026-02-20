@@ -1,5 +1,6 @@
 from google import genai
-from google.genai import types
+from google.genai.types import GenerateContentConfig as GenConfig
+from google.genai.types import Tool
 
 # Define the function declaration for the model
 schedule_meeting_function = {
@@ -31,14 +32,13 @@ schedule_meeting_function = {
 }
 
 client = genai.Client()
-tools = types.Tool(function_declarations=[schedule_meeting_function])
-config = types.GenerateContentConfig(tools=[tools])
+tools = [Tool(function_declarations=[schedule_meeting_function])]
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
     contents="Schedule a meeting with Bob and Alice for 03/14/2025 at 10:00 AM about the Q3 planning.",
-    config=config,
+    config=GenConfig(tools=tools),
 )
 part = response.candidates[0].content.parts[0]
 print(part.function_call)
-print(part.thought_signature[:30])
+print(part.thought_signature[:30] + b"...")

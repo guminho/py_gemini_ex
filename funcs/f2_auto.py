@@ -1,5 +1,5 @@
 from google import genai
-from google.genai import types
+from google.genai.types import GenerateContentConfig as GenConfig
 
 
 # Actual function implementations
@@ -43,14 +43,13 @@ def dim_lights_impl(brightness: float) -> dict:
 
 
 client = genai.Client()
-config = types.GenerateContentConfig(
-    tools=[power_disco_ball_impl, start_music_impl, dim_lights_impl]
-)
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
     contents="Do everything you need to this place into party!",
-    config=config,
+    config=GenConfig(
+        tools=[power_disco_ball_impl, start_music_impl, dim_lights_impl],
+    ),
 )
 print(response.automatic_function_calling_history)
 print(response.text)
