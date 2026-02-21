@@ -10,6 +10,7 @@ response = client.models.generate_content(
         tools=[types.Tool(google_search={})],
     ),
 )
-part = response.candidates[0]
-print(part.grounding_metadata.web_search_queries)
-print(part.content.parts[0].text)
+cand = response.candidates[0]
+print(cand.content.parts[0].text)
+print(cand.grounding_metadata.web_search_queries)
+print(response.usage_metadata.model_dump_json(indent=2))
