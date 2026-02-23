@@ -14,6 +14,17 @@ export GOOGLE_API_KEY=""
 - Structured outputs
 - Function calling
 
+### Gemini tools
+
+- Google Search
+- Code execution
+- URL context
+
+### Simple agents
+
+- Gemini Deep Research
+- Mini (blueprint for mini-SWE-agent, tutorial: https://minimal-agent.com/) 
+
 ### ADK agents
 
 ```
