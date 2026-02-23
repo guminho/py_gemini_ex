@@ -2,15 +2,25 @@ import os
 import re
 import subprocess
 
-from litellm import completion
+from google import genai
+
+client = genai.Client()
 
 
 def query_lm(messages: list[dict[str, str]]) -> str:
-    response = completion(
-        model="gemini/gemini-3-flash-preview",
-        messages=messages,
+    contents = []
+    for msg in messages:
+        contents.append(
+            {
+                "role": msg["role"],
+                "parts": [{"text": msg["content"]}],
+            }
+        )
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=contents,
     )
-    return response.choices[0].message.content
+    return response.text
 
 
 def parse_action(lm_output: str) -> str:
