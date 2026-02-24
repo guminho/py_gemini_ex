@@ -3,7 +3,7 @@ from google.genai.types import Part
 
 client = genai.Client()
 
-url = "https://arxiv.org/pdf/1706.03762"
+url = "https://arxiv.org/pdf/2005.08100"
 doc = Part.from_uri(file_uri=url, mime_type="application/pdf")
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
