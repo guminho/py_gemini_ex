@@ -1,7 +1,7 @@
 from google.adk.agents import LlmAgent
 from google.adk.models.google_llm import Gemini
 from google.adk.planners import BuiltInPlanner
-from google.genai import types
+from google.genai.types import GenerateContentConfig, ThinkingConfig
 
 from tools.tools import get_current_time, get_weather
 
@@ -13,11 +13,11 @@ root_agent = LlmAgent(
         "You are a helpful agent who can answer user questions about the time and weather in a city."
     ),
     tools=[get_weather, get_current_time],
-    generate_content_config=types.GenerateContentConfig(
+    generate_content_config=GenerateContentConfig(
         temperature=1.0,
     ),
     planner=BuiltInPlanner(
-        thinking_config=types.ThinkingConfig(
+        thinking_config=ThinkingConfig(
             thinking_level="high",
             include_thoughts=True,
         )

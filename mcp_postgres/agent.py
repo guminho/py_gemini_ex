@@ -1,18 +1,18 @@
 import os
 
-from dotenv import load_dotenv
 from google.adk.agents.llm_agent import LlmAgent
+from google.adk.planners import BuiltInPlanner
 from google.adk.tools.mcp_tool import StdioConnectionParams
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset
-from google.genai.types import GenerateContentConfig
+from google.genai.types import GenerateContentConfig, ThinkingConfig
 from mcp import StdioServerParameters
 
-load_dotenv
 POSTGRES_URI = os.environ["POSTGRES_URI"]
+print(f"{POSTGRES_URI=}")
 
 root_agent = LlmAgent(
-    model="gemini-2.5-flash",
     name="postgres_agent",
+    model="gemini-3-flash-preview",
     instruction=(
         "You are a PostgreSQL database assistant. "
         "Use the provided tools to query, manage, and interact with "
@@ -31,7 +31,12 @@ root_agent = LlmAgent(
         )
     ],
     generate_content_config=GenerateContentConfig(
-        temperature=0.2,
-        top_p=0.95,
+        temperature=1.0,
+    ),
+    planner=BuiltInPlanner(
+        thinking_config=ThinkingConfig(
+            thinking_level="high",
+            include_thoughts=True,
+        )
     ),
 )
