@@ -1,4 +1,5 @@
 from google.adk.agents import LlmAgent
+from google.adk.apps import App
 from google.adk.models.google_llm import Gemini
 from google.adk.planners import BuiltInPlanner
 from google.genai.types import GenerateContentConfig, ThinkingConfig
@@ -22,4 +23,9 @@ root_agent = LlmAgent(
             include_thoughts=True,
         )
     ),
+)
+
+app = App(
+    name="weather_time_app",
+    root_agent=root_agent,
 )
