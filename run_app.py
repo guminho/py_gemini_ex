@@ -17,6 +17,7 @@ async def call_agent(runner: InMemoryRunner, user_id: str, session_id: str, quer
         user_id=user_id, session_id=session_id, new_message=content
     ):
         if event.is_final_response():
+            # dont break, it exhaust the generator
             if event.content and event.content.parts:
                 final_response_text = event.content.parts[0].text
             elif event.actions and event.actions.escalate:
@@ -24,25 +25,23 @@ async def call_agent(runner: InMemoryRunner, user_id: str, session_id: str, quer
                 final_response_text = (
                     f"Agent escalated: {event.error_message or 'No specific message.'}"
                 )
-            break
 
     print(f"Agent:{final_response_text}")
 
 
 async def main():
-    runner = InMemoryRunner(app=app)
+    async with InMemoryRunner(app=app) as runner:
+        USER_ID = "user_1"
+        SESSION_ID = "session_001"
 
-    USER_ID = "user_1"
-    SESSION_ID = "session_001"
+        await runner.session_service.create_session(
+            app_name=app.name, user_id=USER_ID, session_id=SESSION_ID
+        )
+        run_agent = partial(call_agent, runner, USER_ID, SESSION_ID)
 
-    await runner.session_service.create_session(
-        app_name=app.name, user_id=USER_ID, session_id=SESSION_ID
-    )
-    run_agent = partial(call_agent, runner, USER_ID, SESSION_ID)
-
-    await run_agent("What is the weather like in London?")
-    await run_agent("How about Paris?")
-    await run_agent("Tell me the weather in New York")
+        await run_agent("What is the weather like in London?")
+        await run_agent("How about Paris?")
+        await run_agent("Tell me the weather in New York")
 
 
 if __name__ == "__main__":
