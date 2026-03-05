@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 
 from google import genai
 from google.genai.types import GenerateContentConfig as GenConfig
@@ -9,7 +8,7 @@ from mcp.client.stdio import stdio_client
 client = genai.Client()
 
 mcp_params = StdioServerParameters(
-    command="npx", args=["-y", "@philschmid/weather-mcp"]
+    command="npx", args=["-y", "@wonderwhy-er/desktop-commander@latest"]
 )
 
 
@@ -18,7 +17,7 @@ async def run():
         async with ClientSession(mcp_read, mcp_write) as mcp_sess:
             await mcp_sess.initialize()
 
-            prompt = f"What is the weather in London in {datetime.now().strftime('%Y-%m-%d')}?"
+            prompt = "Print current directory?"
             response = await client.aio.models.generate_content(
                 model="gemini-3-flash-preview",
                 contents=prompt,
@@ -26,12 +25,15 @@ async def run():
                     tools=[mcp_sess],
                     # uses the session, will automatically call the tool
                     # Uncomment if you **don't** want the SDK to automatically call the tool
-                    # automatic_function_calling=genai.types.AutomaticFunctionCallingConfig(
-                    #     disable=True
-                    # ),
+                    automatic_function_calling=genai.types.AutomaticFunctionCallingConfig(
+                        disable=False,
+                        maximum_remote_calls=1,
+                    ),
                 ),
             )
-            print(response.text)
+            print(f"{response.function_calls=}")
+            print(f"{response.automatic_function_calling_history=}")
+            print(f"{response.text=}")
 
 
 # Start the asyncio event loop and run the main function
