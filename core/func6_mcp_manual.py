@@ -14,7 +14,7 @@ MCP_PARAMS = StdioServerParameters(
     command="npx",
     args=["-y", "@wonderwhy-er/desktop-commander@latest"],
 )
-ALLOWED_TOOLS = ["list_directory", "start_process"]
+ALLOWED_TOOLS = ["read_file"]
 
 
 async def run():
@@ -25,7 +25,7 @@ async def run():
             tool_res.tools = [t for t in tool_res.tools if t.name in ALLOWED_TOOLS]
             tool_adapter = McpToGenAiToolAdapter(mcp_sess, tool_res)
 
-            prompt = "What's linux kernel version?"
+            prompt = "Read file .python-version and .gitignore"
             contents = [Content(role="user", parts=[Part(text=prompt)])]
 
             for _ in range(1):
@@ -38,19 +38,22 @@ async def run():
                     ),
                 )
 
+                contents.append(response.candidates[0].content)
                 if not response.function_calls:
                     break
 
                 print(f"To call: {[fc.name for fc in response.function_calls]}")
-                fr_parts = []
-                for fc in response.function_calls:
+
+                async def _call_tool_and_wrap(fc):
                     mcp_res = await tool_adapter.call_tool(fc)
-                    mcp_part = Part.from_function_response(
+                    return Part.from_function_response(
                         name=fc.name, response={"result": mcp_res}
                     )
-                    fr_parts.append(mcp_part)
 
-                contents.append(response.candidates[0].content)
+                fr_parts = await asyncio.gather(
+                    *[_call_tool_and_wrap(fc) for fc in response.function_calls]
+                )
+
                 contents.append(Content(role="user", parts=fr_parts))
 
             print(f"{response.function_calls=}")
