@@ -5,7 +5,7 @@ client = genai.Client()
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
-    contents="Who is Albus Dumbledore? Answer in one sentence.",
+    contents="Who is the only Slytherin Headmaster known for his lifelong unrequited love for a Muggle-born Gryffindor?",
 )
-print(response.text)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

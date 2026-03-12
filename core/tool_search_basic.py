@@ -13,4 +13,4 @@ response = client.models.generate_content(
 cand = response.candidates[0]
 print(cand.content.parts[0].text)
 print(cand.grounding_metadata.web_search_queries)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")

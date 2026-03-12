@@ -20,4 +20,4 @@ if x := cand.grounding_metadata:
     print(x.web_search_queries)
 if x := cand.url_context_metadata:
     print(x.url_metadata)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")

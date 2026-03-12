@@ -65,5 +65,5 @@ response = client.models.generate_content(
         response_schema=schema,
     ),
 )
-print(response.text)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

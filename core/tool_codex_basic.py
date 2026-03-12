@@ -19,4 +19,4 @@ for idx, part in enumerate(response.candidates[0].content.parts):
         print(f"{PANEL} #{idx}. Code {PANEL}\n{out.code}\n")
     if out := part.code_execution_result:
         print(f"{PANEL} #{idx}. Output {PANEL}\n{out.output}\n")
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")

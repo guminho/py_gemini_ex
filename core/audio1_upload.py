@@ -10,5 +10,5 @@ response = client.models.generate_content(
     model="gemini-3-flash-preview",
     contents=["Describe this audio clip", au],
 )
-print(response.text)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

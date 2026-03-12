@@ -33,4 +33,4 @@ for idx, part in enumerate(response.candidates[0].content.parts):
         print(f"{PANEL} #{idx}. Image {PANEL}\n")
         img = Image.open(io.BytesIO(out.image_bytes))
         img.show()  # Opens in a standalone window
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")

@@ -10,5 +10,5 @@ response = client.models.generate_content(
         thinking_config=types.ThinkingConfig(thinking_level="low"),
     ),
 )
-print(response.text)
-print(response.usage_metadata)
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

@@ -11,5 +11,5 @@ response = client.models.generate_content(
         temperature=0.3,
     ),
 )
-print(response.text)
-print(response.usage_metadata)
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

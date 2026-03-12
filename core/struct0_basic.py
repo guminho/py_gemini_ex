@@ -34,5 +34,5 @@ response = client.models.generate_content(
         "response_json_schema": ModerationResult.model_json_schema(),
     },
 )
-print(response.text)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.text=}")
+print(f"{response.usage_metadata=}")

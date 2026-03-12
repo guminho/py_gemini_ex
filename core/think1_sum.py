@@ -17,4 +17,4 @@ for part in response.candidates[0].content.parts:
         print(f"Thought summary:\n{part.text}\n")
     else:
         print(f"Answer:\n{part.text}\n")
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")

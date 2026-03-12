@@ -18,4 +18,4 @@ print(cand.content.parts[0].text)
 if metas := cand.url_context_metadata.url_metadata:
     for meta in metas:
         print(meta.url_retrieval_status.value, meta.retrieved_url)
-print(response.usage_metadata.model_dump_json(indent=2))
+print(f"{response.usage_metadata=}")
