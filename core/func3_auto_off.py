@@ -5,7 +5,6 @@ from google.genai.types import GenerateContentConfig as GenConfig
 from google.genai.types import ToolConfig
 
 
-# Define the function with type hints and docstring
 def get_current_temperature(location: str) -> dict:
     """Gets the current temperature for a given location.
 

@@ -1,11 +1,13 @@
 from typing import Literal
 
-from google.genai.types import FunctionDeclaration
+from google.adk.tools import FunctionTool
+
+type ColorTemp = Literal["daylight", "cool", "warm"]
 
 
 def set_light_values(
     brightness: int,
-    color_temp: Literal["daylight", "cool", "warm"],
+    color_temp: ColorTemp,
 ) -> dict[str, int | str]:
     """Set the brightness and color temperature of a room light. (mock API).
 
@@ -19,5 +21,6 @@ def set_light_values(
     return {"brightness": brightness, "colorTemperature": color_temp}
 
 
-fn_decl = FunctionDeclaration.from_callable_with_api_option(callable=set_light_values)
+tool = FunctionTool(set_light_values)
+fn_decl = tool._get_declaration()
 print(fn_decl.model_dump_json(exclude_none=True))
