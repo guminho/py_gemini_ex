@@ -9,4 +9,4 @@ response = client.models.generate_content_stream(
 for chunk in response:
     print(chunk.text, end="")
 print()
-print(f"{chunk.usage_metadata=}")
+print(f"{chunk.usage_metadata.model_dump_json(exclude_none=True, indent=2)}")

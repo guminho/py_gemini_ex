@@ -9,4 +9,4 @@ response = client.models.generate_content(
     contents=[image, "Describe the image? Answer in one sentence."],
 )
 print(f"{response.text=}")
-print(f"{response.usage_metadata=}")
+print(f"{response.usage_metadata.model_dump_json(exclude_none=True, indent=2)}")
