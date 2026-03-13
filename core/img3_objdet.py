@@ -6,15 +6,14 @@ from PIL import Image
 
 client = genai.Client()
 
-image = Image.open("dumbledore_pensieve.jpeg")
-prompt = "Detect the wand in this image."
+img = Image.open("dumbledore_pensieve.jpeg")
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
-    contents=[image, prompt],
+    contents=[img, "Detect the wand in this image."],
     config=types.GenerateContentConfig(response_mime_type="application/json"),
 )
 
-width, height = image.size
+width, height = img.size
 bounding_boxes = json.loads(response.text)
 # box_2d: [ymin, xmin, ymax, xmax] normalized to 0-1000
 
