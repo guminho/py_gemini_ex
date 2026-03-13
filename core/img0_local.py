@@ -5,7 +5,7 @@ from google.genai.types import Part
 
 client = genai.Client()
 
-data = Path("dumbledore_pensieve.jpeg").read_bytes()
+data = Path("potter_snitch.jpeg").read_bytes()
 img = Part.from_bytes(data=data, mime_type="image/jpeg")
 
 response = client.models.generate_content(

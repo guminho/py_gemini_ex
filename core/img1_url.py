@@ -1,11 +1,11 @@
 import requests
 from google import genai
-from google.genai import types
+from google.genai.types import Part
 
 client = genai.Client()
 
 data = requests.get("https://goo.gle/instrument-img").content
-img = types.Part.from_bytes(data=data, mime_type="image/jpeg")
+img = Part.from_bytes(data=data, mime_type="image/jpeg")
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",

@@ -2,7 +2,7 @@ from google import genai
 
 client = genai.Client()
 
-img = client.files.upload(file="dumbledore_pensieve.jpeg")
+img = client.files.upload(file="potter_snitch.jpeg")
 
 response = client.models.generate_content(
     model="gemini-3-flash-preview",
