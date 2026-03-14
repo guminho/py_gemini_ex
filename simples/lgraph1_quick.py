@@ -1,18 +1,12 @@
 import io
 import operator
-from typing import Annotated, Literal, TypedDict
+from typing import Annotated, TypedDict
 
 from langchain.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, START, StateGraph
 from PIL import Image as PILImage
-
-model = ChatGoogleGenerativeAI(
-    model="gemini-3-flash-preview",
-    temperature=1.0,
-    max_retries=2,
-)
 
 
 # Define tools
@@ -34,30 +28,33 @@ def divide(a: int, b: int) -> float:
     return a / b
 
 
-# Augment the LLM with tools
+# Augment LLM with tools
 tools = [add, multiply, divide]
 tools_by_name = {tool.name: tool for tool in tools}
+model = ChatGoogleGenerativeAI(
+    model="gemini-3-flash-preview",
+    temperature=1.0,
+    max_retries=2,
+)
 model_with_tools = model.bind_tools(tools)
 sys_msg = SystemMessage(
     content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
 )
 
 
-class MessagesState(TypedDict):
+class AgentState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     llm_calls: int
 
 
-def llm_call(state: dict):
-    """LLM decides whether to call a tool or not"""
-
+def llm_call(state: AgentState):
     return {
         "messages": [model_with_tools.invoke([sys_msg] + state["messages"])],
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 
 
-def tool_node(state: dict):
+def tool_node(state: AgentState):
     """Performs the tool call"""
 
     result = []
@@ -68,8 +65,8 @@ def tool_node(state: dict):
     return {"messages": result}
 
 
-def should_continue(state: MessagesState) -> Literal["tool_node", END]:
-    """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
+def should_continue(state: AgentState):
+    """Decide to call tool or stop"""
 
     messages = state["messages"]
     last_message = messages[-1]
@@ -83,7 +80,7 @@ def should_continue(state: MessagesState) -> Literal["tool_node", END]:
 
 
 # build
-agent_builder = StateGraph(MessagesState)
+agent_builder = StateGraph(AgentState)
 agent_builder.add_node("llm_call", llm_call)
 agent_builder.add_node("tool_node", tool_node)
 
