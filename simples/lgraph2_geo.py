@@ -18,9 +18,11 @@ geolocator = Nominatim(user_agent="weather-app")
 
 
 class SearchInput(BaseModel):
-    location: str = Field(description="The city and state, e.g., San Francisco")
+    location: str = Field(
+        description="The city and state, e.g., San Francisco",
+    )
     date: str = Field(
-        description="the forecasting date for when to get the weather format (yyyy-mm-dd)"
+        description="the forecasting date for when to get the weather format (yyyy-mm-dd)",
     )
 
 
@@ -100,9 +102,7 @@ agent_builder.add_node("llm_call", llm_call)
 agent_builder.add_node("tool_node", tool_node)
 
 agent_builder.set_entry_point("llm_call")
-agent_builder.add_conditional_edges(
-    "llm_call", should_continue, {"continue": "tool_node", "end": END}
-)
+agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
 agent_builder.add_edge("tool_node", "llm_call")
 agent = agent_builder.compile()
 
