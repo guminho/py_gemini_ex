@@ -35,7 +35,7 @@ async def main():
         SESSION_ID = "session_001"
 
         await runner.session_service.create_session(
-            app_name=app.name, user_id=USER_ID, session_id=SESSION_ID
+            app_name=runner.app_name, user_id=USER_ID, session_id=SESSION_ID
         )
         run_agent = partial(call_agent, runner, USER_ID, SESSION_ID)
 
