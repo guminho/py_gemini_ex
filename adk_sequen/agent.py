@@ -84,8 +84,11 @@ code_refactorer_agent = LlmAgent(
 # This agent orchestrates the pipeline by running the sub_agents in order.
 code_pipeline_agent = SequentialAgent(
     name="CodePipelineAgent",
-    description="Executes a sequence of code writing, reviewing, and refactoring.",
-    sub_agents=[code_writer_agent, code_reviewer_agent, code_refactorer_agent],
+    sub_agents=[
+        code_writer_agent,
+        code_reviewer_agent,
+        code_refactorer_agent,
+    ],
 )
 
 root_agent = code_pipeline_agent

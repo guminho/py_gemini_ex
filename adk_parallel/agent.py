@@ -3,13 +3,10 @@ from google.adk.agents.parallel_agent import ParallelAgent
 from google.adk.agents.sequential_agent import SequentialAgent
 from google.adk.tools import google_search
 
-# --- Constants ---
-GEMINI_MODEL = "gemini-3-flash-preview"
-
 # --- 1. Define Researcher Sub-Agents (to run in parallel) ---
 # Researcher 1: Renewable Energy
 researcher_agent_1 = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="RenewableEnergyResearcher",
     description="Researches renewable energy sources.",
     instruction="""
@@ -26,7 +23,7 @@ researcher_agent_1 = LlmAgent(
 
 # Researcher 2: Electric Vehicles
 researcher_agent_2 = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="EVResearcher",
     description="Researches electric vehicle technology.",
     instruction="""
@@ -43,7 +40,7 @@ researcher_agent_2 = LlmAgent(
 
 # Researcher 3: Carbon Capture
 researcher_agent_3 = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="CarbonCaptureResearcher",
     description="Researches carbon capture methods.",
     instruction="""
@@ -63,7 +60,7 @@ researcher_agent_3 = LlmAgent(
 # This agent takes the results stored in the session state by the parallel agents
 # and synthesizes them into a single, structured response with attributions.
 merger_agent = LlmAgent(
-    model=GEMINI_MODEL,  # Or potentially a more powerful model if needed for synthesis
+    model="gemini-3-flash-preview",  # Or potentially a more powerful model if needed for synthesis
     name="SynthesisAgent",
     description="Combines research findings from parallel agents into a structured, cited report, strictly grounded on provided inputs.",
     instruction="""
@@ -112,12 +109,9 @@ merger_agent = LlmAgent(
 # --- 4. Create the SequentialAgent (Orchestrates the overall flow) ---
 root_agent = SequentialAgent(
     name="ResearchAndSynthesisPipeline",
-    # Run parallel research first, then merge
-    description="Coordinates parallel research and synthesizes the results.",
     sub_agents=[
         ParallelAgent(
             name="ParallelWebResearchAgent",
-            description="Runs multiple research agents in parallel to gather information.",
             sub_agents=[
                 researcher_agent_1,
                 researcher_agent_2,

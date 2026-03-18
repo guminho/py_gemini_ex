@@ -2,9 +2,6 @@ from google.adk.agents import LlmAgent, LoopAgent, SequentialAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.tools.tool_context import ToolContext
 
-# --- Constants ---
-GEMINI_MODEL = "gemini-3-flash-preview"
-
 # --- State Keys ---
 KEY_CURRENT_DOCUMENT = "current_document"
 KEY_CRITICISM = "criticism"
@@ -17,7 +14,7 @@ COMPLETION_PHRASE = "No major issues found."
 
 # Agent 1: Initial Writer Agent (Runs ONCE at the beginning)
 initial_writer_agent = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="InitialWriterAgent",
     include_contents="none",
     description="Writes the initial document draft based on the topic, aiming for some initial substance.",
@@ -34,7 +31,7 @@ initial_writer_agent = LlmAgent(
 
 # Agent 2a: Critic Agent (Inside the Refinement Loop)
 critic_agent_in_loop = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="CriticAgent",
     include_contents="none",
     description="Reviews the current draft, providing critique if clear improvements are needed, otherwise signals completion.",
@@ -75,7 +72,7 @@ def exit_loop(tool_context: ToolContext):
 
 
 refiner_agent_in_loop = LlmAgent(
-    model=GEMINI_MODEL,
+    model="gemini-3-flash-preview",
     name="RefinerAgent",
     # Relies solely on state via placeholders
     include_contents="none",
@@ -115,17 +112,15 @@ def update_initial_topic_state(callback_context: CallbackContext):
 # For ADK tools compatibility, the root agent must be named `root_agent`
 root_agent = SequentialAgent(
     name="IterativeWritingPipeline",
-    description="Writes an initial document and then iteratively refines it with critique using an exit tool.",
     sub_agents=[
         initial_writer_agent,  # Agent 1
         LoopAgent(
             name="RefinementLoop",
-            # Agent order is crucial: Critique first, then Refine/Exit
             sub_agents=[
                 critic_agent_in_loop,  # Agent 2a
                 refiner_agent_in_loop,  # Agent 2b with exit tool
             ],
-            max_iterations=5,  # Limit loops
+            max_iterations=5,
         ),
     ],
     before_agent_callback=update_initial_topic_state,  # set initial topic in state
