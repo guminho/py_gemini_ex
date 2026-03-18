@@ -7,8 +7,8 @@ from google.genai import types
 from tools.tools import get_current_time, get_weather
 
 root_agent = LlmAgent(
-    name="weather_time_agent",
     model=Gemini(model="gemini-3-flash-preview"),
+    name="weather_time_agent",
     description="Agent to answer questions about the time and weather in a city.",
     instruction="You are a helpful agent.",
     tools=[get_weather, get_current_time],
@@ -26,6 +26,6 @@ root_agent = LlmAgent(
 )
 
 app = App(
-    name="basic_weather",  # same as directory name
+    name="adk_basic",  # same as directory name
     root_agent=root_agent,
 )
