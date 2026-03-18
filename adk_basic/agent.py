@@ -7,7 +7,10 @@ from google.genai import types
 from tools.tools import get_current_time, get_weather
 
 root_agent = LlmAgent(
-    model=Gemini(model="gemini-3-flash-preview"),
+    model=Gemini(
+        model="gemini-3-flash-preview",
+        retry_options=types.HttpRetryOptions(initial_delay=1, attempts=2),
+    ),
     name="weather_time_agent",
     description="Agent to answer questions about the time and weather in a city.",
     instruction="You are a helpful agent.",
