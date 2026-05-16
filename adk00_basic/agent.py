@@ -29,6 +29,6 @@ root_agent = LlmAgent(
 )
 
 app = App(
-    name="adk_basic",  # same as directory name
+    name="adk00_basic",  # same as directory name
     root_agent=root_agent,
 )

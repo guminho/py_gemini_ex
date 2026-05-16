@@ -32,6 +32,6 @@ agent_team = LlmAgent(
 )
 
 app = App(
-    name="adk_team",  # same as directory name
+    name="adk01_team",  # same as directory name
     root_agent=agent_team,
 )
