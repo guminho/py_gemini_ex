@@ -4,7 +4,7 @@ from google.adk.models.google_llm import Gemini
 from google.adk.planners import BuiltInPlanner
 from google.genai import types
 
-from tools.tools import get_current_time, get_weather
+from custom_tools.tools import get_current_time, get_weather
 
 root_agent = LlmAgent(
     model=Gemini(

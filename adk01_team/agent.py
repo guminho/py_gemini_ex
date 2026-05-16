@@ -1,7 +1,7 @@
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.apps import App
 
-from tools.tools import get_weather, say_goodbye, say_hello
+from custom_tools.tools import get_weather, say_goodbye, say_hello
 
 greeting_agent = LlmAgent(
     model="gemini-3-flash-preview",
