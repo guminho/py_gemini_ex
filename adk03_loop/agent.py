@@ -1,46 +1,53 @@
-from google.adk.agents import LlmAgent, LoopAgent, SequentialAgent
+"""
+Iterative Refinement and Writing Loop Pipeline.
+
+This module orchestrates a streamlined iterative refinement loop using a single 
+LoopAgent. It combines initial writing and refinement into a single Creative 
+Writing Agent, and uses a Critic Agent to evaluate and optionally exit the loop:
+1. WriterAgent: Generates the initial draft if none exists, or refines the 
+   existing draft based on the critic's feedback.
+2. CriticAgent: Evaluates the draft against quality criteria. If satisfied, it 
+   calls the `exit_loop` tool to terminate; otherwise, it outputs critique.
+3. RefinementLoop: The root LoopAgent executing the writer and critic iteratively.
+"""
+
+from google.adk.agents import LlmAgent, LoopAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.tools.tool_context import ToolContext
 
-# --- State Keys ---
+# --- Global Configurations ---
+MODEL_NAME = "gemini-3-flash-preview"
+
+# Output Keys (prevents spelling errors/typos when referencing keys)
+KEY_INITIAL_TOPIC = "initial_topic"
 KEY_CURRENT_DOCUMENT = "current_document"
 KEY_CRITICISM = "criticism"
-# Define the exact phrase the Critic should use to signal completion
-COMPLETION_PHRASE = "No major issues found."
 
+# --- Prompt Templates ---
 
-# --- Agent Definitions ---
-# initial_writer_agent >> [critic_agent_in_loop >> refiner_agent_in_loop(exit_loop)]
+INSTRUCTION_WRITER = f"""
+    You are a Creative Writing Assistant.
+    Your task is to write or refine a short story based on the topic: {{{KEY_INITIAL_TOPIC}}}.
 
-# Agent 1: Initial Writer Agent (Runs ONCE at the beginning)
-initial_writer_agent = LlmAgent(
-    model="gemini-3-flash-preview",
-    name="InitialWriterAgent",
-    include_contents="none",
-    description="Writes the initial document draft based on the topic, aiming for some initial substance.",
-    instruction="""
-    You are a Creative Writing Assistant tasked with starting a story.
-    Write a *very basic* first draft of a short story (just 1-2 simple sentences).
-    Keep it plain and minimal - do NOT add descriptive language yet.
-    Topic: {initial_topic}
+    **Current Draft (if any):**
+    {{{KEY_CURRENT_DOCUMENT}}}
 
-    Output *only* the story/document text. Do not add introductions or explanations.
-    """,  # this is not f-string, hence single curly braces for placeholders
-    output_key=KEY_CURRENT_DOCUMENT,
-)
+    **Feedback to address (if any):**
+    {{{KEY_CRITICISM}}}
 
-# Agent 2a: Critic Agent (Inside the Refinement Loop)
-critic_agent_in_loop = LlmAgent(
-    model="gemini-3-flash-preview",
-    name="CriticAgent",
-    include_contents="none",
-    description="Reviews the current draft, providing critique if clear improvements are needed, otherwise signals completion.",
-    instruction=f"""
+    **Task:**
+    - If the Current Draft is empty, write a basic first draft of a short story (just 1-2 simple sentences) about the topic. Keep it plain and minimal - do NOT add descriptive language yet.
+    - If there is a Current Draft and Feedback, carefully apply the feedback suggestions to refine and improve the Current Draft.
+
+    Output *only* the story/document text. Do not add introductions, explanations, or formatting.
+    """
+
+INSTRUCTION_CRITIC = f"""
     You are a Constructive Critic AI reviewing a short story draft.
 
     **Document to Review:**
     ```
-    {{current_document}}
+    {{{KEY_CURRENT_DOCUMENT}}}
     ```
 
     **Completion Criteria (ALL must be met):**
@@ -51,77 +58,68 @@ critic_agent_in_loop = LlmAgent(
     **Task:**
     Check the document against the criteria above.
 
-    IF any criteria is NOT met, provide specific feedback on what to add or improve.
-    Output *only* the critique text.
+    IF any criteria is NOT met:
+    Provide specific feedback on what to add or improve. Output *only* the critique text. Do not call the 'exit_loop' function.
 
-    IF ALL criteria are met, respond *exactly* with: "{COMPLETION_PHRASE}"
-    """,
+    IF ALL criteria are met:
+    You MUST call the 'exit_loop' function to signal completion. Do not output any text.
+    """
+
+
+# --- Tool Definitions ---
+
+def exit_loop(tool_context: ToolContext):
+    """Call this function ONLY when the document meets all criteria, signaling the iterative process should end."""
+    print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
+    tool_context.actions.escalate = True
+    tool_context.actions.skip_summarization = True
+    return {}
+
+
+# --- Sub-Agents Definition ---
+
+writer_agent = LlmAgent(
+    model=MODEL_NAME,
+    name="WriterAgent",
+    include_contents="none",
+    description="Generates the initial story draft or refines it based on criticism.",
+    instruction=INSTRUCTION_WRITER,
+    output_key=KEY_CURRENT_DOCUMENT,
+)
+
+critic_agent = LlmAgent(
+    model=MODEL_NAME,
+    name="CriticAgent",
+    include_contents="none",
+    description="Reviews the draft against criteria and calls exit_loop if successful.",
+    instruction=INSTRUCTION_CRITIC,
+    tools=[exit_loop],
     output_key=KEY_CRITICISM,
 )
 
 
-# Agent 2b: Refiner/Exiter Agent (Inside the Refinement Loop)
-# Tool definition
-def exit_loop(tool_context: ToolContext):
-    """Call this function ONLY when the critique indicates no further changes are needed, signaling the iterative process should end."""
-    print(f"  [Tool Call] exit_loop triggered by {tool_context.agent_name}")
-    tool_context.actions.escalate = True
-    tool_context.actions.skip_summarization = True
-    # Return empty dict as tools should typically return JSON-serializable output
-    return {}
+# --- Iterative Orchestration ---
 
-
-refiner_agent_in_loop = LlmAgent(
-    model="gemini-3-flash-preview",
-    name="RefinerAgent",
-    # Relies solely on state via placeholders
-    include_contents="none",
-    description="Refines the document based on critique, or calls exit_loop if critique indicates completion.",
-    instruction=f"""
-    You are a Creative Writing Assistant refining a document based on feedback OR exiting the process.
-    **Current Document:**
-    ```
-    {{current_document}}
-    ```
-    **Critique/Suggestions:**
-    {{criticism}}
-
-    **Task:**
-    Analyze the 'Critique/Suggestions'.
-    IF the critique is *exactly* "{COMPLETION_PHRASE}":
-    You MUST call the 'exit_loop' function. Do not output any text.
-    ELSE (the critique contains actionable feedback):
-    Carefully apply the suggestions to improve the 'Current Document'. Output *only* the refined document text.
-
-    Do not add explanations. Either output the refined document OR call the exit_loop function.
-    """,
-    tools=[exit_loop],
-    output_key=KEY_CURRENT_DOCUMENT,  # Overwrites state. NOTE: is blank after exit_loop is called
-)
-
-
-# --- Overall Sequential Pipeline ---
-# Before agent callback
-def update_initial_topic_state(callback_context: CallbackContext):
-    """Ensure 'initial_topic' is set in state before pipeline starts."""
-    callback_context.state["initial_topic"] = callback_context.state.get(
-        "initial_topic", "a robot developing unexpected emotions"
+def initialize_state(callback_context: CallbackContext):
+    """Ensure all state keys are initialized to avoid formatting/placeholder errors on the first run."""
+    callback_context.state[KEY_INITIAL_TOPIC] = callback_context.state.get(
+        KEY_INITIAL_TOPIC, "a robot developing unexpected emotions"
+    )
+    callback_context.state[KEY_CURRENT_DOCUMENT] = callback_context.state.get(
+        KEY_CURRENT_DOCUMENT, ""
+    )
+    callback_context.state[KEY_CRITICISM] = callback_context.state.get(
+        KEY_CRITICISM, ""
     )
 
 
 # For ADK tools compatibility, the root agent must be named `root_agent`
-root_agent = SequentialAgent(
-    name="IterativeWritingPipeline",
+root_agent = LoopAgent(
+    name="RefinementLoop",
     sub_agents=[
-        initial_writer_agent,  # Agent 1
-        LoopAgent(
-            name="RefinementLoop",
-            sub_agents=[
-                critic_agent_in_loop,  # Agent 2a
-                refiner_agent_in_loop,  # Agent 2b with exit tool
-            ],
-            max_iterations=5,
-        ),
+        writer_agent,
+        critic_agent,
     ],
-    before_agent_callback=update_initial_topic_state,  # set initial topic in state
+    max_iterations=5,
+    before_agent_callback=initialize_state,
 )

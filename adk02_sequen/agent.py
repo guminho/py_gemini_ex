@@ -22,14 +22,14 @@ KEY_REFACTORED_CODE = "refactored_code"
 
 # --- Prompt Templates ---
 
-CODE_WRITER_INSTRUCTION = """
+INSTRUCTION_CODE_WRITER = """
     You are a Python Code Generator.
     Based *only* on the user's request, write Python code that fulfills the requirement.
     Output *only* the complete Python code block, enclosed in triple backticks (```python ... ```).
     Do not add any other text before or after the code block.
     """
 
-CODE_REVIEWER_INSTRUCTION = f"""
+INSTRUCTION_CODE_REVIEWER = f"""
     You are an expert Python Code Reviewer.
     Your task is to provide constructive feedback on the provided code.
 
@@ -51,7 +51,7 @@ CODE_REVIEWER_INSTRUCTION = f"""
     Output *only* the review comments or the "No major issues" statement.
     """
 
-CODE_REFACTORER_INSTRUCTION = f"""
+INSTRUCTION_CODE_REFACTORER = f"""
     You are a Python Code Refactoring AI.
     Your goal is to improve the given Python code based on the provided review comments.
 
@@ -80,7 +80,7 @@ code_writer_agent = LlmAgent(
     model=MODEL_NAME,
     name="CodeWriterAgent",
     description="Writes initial Python code based on a specification.",
-    instruction=CODE_WRITER_INSTRUCTION,
+    instruction=INSTRUCTION_CODE_WRITER,
     output_key=KEY_GENERATED_CODE,
 )
 
@@ -88,7 +88,7 @@ code_reviewer_agent = LlmAgent(
     model=MODEL_NAME,
     name="CodeReviewerAgent",
     description="Reviews code and provides feedback.",
-    instruction=CODE_REVIEWER_INSTRUCTION,
+    instruction=INSTRUCTION_CODE_REVIEWER,
     output_key=KEY_REVIEW_COMMENTS,
 )
 
@@ -96,7 +96,7 @@ code_refactorer_agent = LlmAgent(
     model=MODEL_NAME,
     name="CodeRefactorerAgent",
     description="Refactors code based on review comments.",
-    instruction=CODE_REFACTORER_INSTRUCTION,
+    instruction=INSTRUCTION_CODE_REFACTORER,
     output_key=KEY_REFACTORED_CODE,
 )
 
