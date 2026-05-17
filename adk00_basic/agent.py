@@ -25,7 +25,7 @@ root_agent = LlmAgent(
         )
     ),
     # planner=PlanReActPlanner(),
-    include_contents="default",
+    include_contents="default",  # prior history
 )
 
 app = App(
